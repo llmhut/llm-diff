@@ -1,0 +1,56 @@
+{
+    "name": "llm-diff",
+    "version": "0.1.0",
+    "description": "Compare LLM responses across prompt versions — see token, cost, and latency deltas in a familiar diff format.",
+    "keywords": [
+      "llm",
+      "diff",
+      "prompt-engineering",
+      "openai",
+      "anthropic",
+      "gemini",
+      "groq",
+      "cli",
+      "developer-tools",
+      "ai",
+      "token-count",
+      "cost-comparison"
+    ],
+    "homepage": "https://github.com/llmhut/llm-diff",
+    "bugs": {
+      "url": "https://github.com/llmhut/llm-diff/issues"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/llmhut/llm-diff.git"
+    },
+    "license": "MIT",
+    "author": "llmhut",
+    "type": "module",
+    "main": "src/index.js",
+    "bin": {
+      "llm-diff": "bin/llm-diff.js"
+    },
+    "files": [
+      "bin/",
+      "src/",
+      "LICENSE",
+      "README.md"
+    ],
+    "scripts": {
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "lint": "eslint src/ bin/ test/",
+      "llm-diff": "node bin/llm-diff.js"
+    },
+    "dependencies": {
+      "diff": "^7.0.0",
+      "tiktoken": "^1.0.18"
+    },
+    "devDependencies": {
+      "vitest": "^3.0.0"
+    },
+    "engines": {
+      "node": ">=18"
+    }
+  }

@@ -1,0 +1,11 @@
+# Default owner for everything
+* @Aakashbhardwaj27
+
+# Core scanning engine
+/lib/ @Aakashbhardwaj27
+
+# CLI interface
+/bin/ @Aakashbhardwaj27
+
+# CI/CD and repo config
+/.github/ @Aakashbhardwaj27
