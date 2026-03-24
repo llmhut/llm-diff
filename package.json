@@ -1,6 +1,6 @@
 {
     "name": "llm-diff",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Compare LLM responses across prompt versions — see token, cost, and latency deltas in a familiar diff format.",
     "keywords": [
       "llm",
@@ -16,7 +16,7 @@
       "token-count",
       "cost-comparison"
     ],
-    "homepage": "https://github.com/llmhut/llm-diff",
+    "homepage": "https://llmhut.github.io/llm-diff/",
     "bugs": {
       "url": "https://github.com/llmhut/llm-diff/issues"
     },
