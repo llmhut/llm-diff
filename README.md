@@ -183,4 +183,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Apache License — see [LICENSE](LICENSE).

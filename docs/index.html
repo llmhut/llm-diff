@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llm-diff Docs | Modern Prompt Observability</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --sidebar-bg: #fafafa;
+            --header-bg: rgba(255,255,255,0.92);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --accent-soft: #eff6ff;
+            --green: #16a34a;
+            --green-soft: #f0fdf4;
+            --red: #dc2626;
+            --red-soft: #fef2f2;
+            --yellow: #ca8a04;
+            --border: #e2e8f0;
+            --code-bg: #f8fafc;
+            --terminal-bg: #0d1117;
+            --terminal-text: #c9d1d9;
+            --header-height: 64px;
+            --sidebar-w: 272px;
+            --toc-w: 220px;
+        }
+        [data-theme='dark'] {
+            --bg: #0b0e14;
+            --sidebar-bg: #0d1117;
+            --header-bg: rgba(11,14,20,0.92);
+            --text-main: #f1f5f9;
+            --text-muted: #8b949e;
+            --accent: #38bdf8;
+            --accent-soft: #0c1a2e;
+            --green: #3fb950;
+            --green-soft: #0d2010;
+            --red: #f85149;
+            --red-soft: #2a0d0d;
+            --yellow: #d29922;
+            --border: #21262d;
+            --code-bg: #010409;
+            --terminal-bg: #010409;
+            --terminal-text: #c9d1d9;
+        }
+
+        *{box-sizing:border-box;scroll-behavior:smooth}
+        body{margin:0;font-family:'Sora',sans-serif;background:var(--bg);color:var(--text-main);line-height:1.65;-webkit-font-smoothing:antialiased}
+
+        /* ── HEADER ── */
+        header.global-nav{
+            height:var(--header-height);border-bottom:1px solid var(--border);
+            display:flex;align-items:center;justify-content:space-between;
+            padding:0 2rem;position:fixed;top:0;width:100%;z-index:100;
+            backdrop-filter:blur(14px);background:var(--header-bg);
+        }
+        .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;
+            color:var(--text-main);font-weight:800;font-size:1.1rem;letter-spacing:-0.03em}
+        .logo-icon{width:32px;height:32px;background:var(--text-main);border-radius:8px;
+            display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .logo-icon svg{display:block}
+        .header-right{display:flex;align-items:center;gap:1.25rem}
+        .icon-btn{background:none;border:none;cursor:pointer;color:var(--text-main);
+            opacity:.7;transition:opacity .2s;display:flex;align-items:center;padding:4px}
+        .icon-btn:hover{opacity:1}
+        .header-badge{background:var(--accent-soft);color:var(--accent);border:1px solid currentColor;
+            border-color:color-mix(in srgb,var(--accent) 30%,transparent);
+            padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600;text-decoration:none}
+
+        /* ── LAYOUT ── */
+        .container{display:grid;grid-template-columns:var(--sidebar-w) 1fr var(--toc-w);
+            margin-top:var(--header-height)}
+
+        /* ── SIDEBAR ── */
+        aside.sidebar{background:var(--sidebar-bg);border-right:1px solid var(--border);
+            padding:2rem 1.25rem;height:calc(100vh - var(--header-height));
+            position:sticky;top:var(--header-height);overflow-y:auto}
+        .nav-section{margin-bottom:2rem}
+        .nav-label{font-size:.68rem;font-weight:700;color:var(--text-muted);
+            text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;padding:0 .5rem}
+        .sidebar ul{list-style:none;padding:0;margin:0}
+        .sidebar li a{display:flex;align-items:center;gap:8px;padding:.35rem .5rem;
+            color:var(--text-muted);text-decoration:none;font-size:.875rem;
+            border-radius:6px;transition:all .15s}
+        .sidebar li a:hover,.sidebar li a.active{color:var(--accent);background:var(--accent-soft)}
+        .sidebar li a .dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5;flex-shrink:0}
+
+        /* ── MAIN ── */
+        main{padding:3.5rem 4rem;max-width:860px;min-width:0}
+        section{margin-bottom:6rem;scroll-margin-top:80px}
+
+        h1{font-size:3.2rem;font-weight:800;letter-spacing:-.05em;margin:0 0 1rem;line-height:1.1}
+        h2{font-size:1.75rem;font-weight:700;border-bottom:1px solid var(--border);
+            padding-bottom:.75rem;margin:4rem 0 1.5rem;letter-spacing:-.025em}
+        h3{font-size:1.1rem;font-weight:700;margin:2.5rem 0 .75rem;color:var(--text-main)}
+        p{margin:.75rem 0;color:var(--text-muted)}
+        p strong,li strong{color:var(--text-main)}
+
+        /* ── HERO BADGES ── */
+        .badges{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem}
+        .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;
+            font-size:.75rem;font-weight:600;border:1px solid}
+        .badge-blue{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 25%,transparent)}
+        .badge-green{background:var(--green-soft);color:var(--green);border-color:color-mix(in srgb,var(--green) 25%,transparent)}
+        .badge-gray{background:var(--code-bg);color:var(--text-muted);border-color:var(--border)}
+
+        /* ── HERO METRICS ── */
+        .hero-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+        .metric-card{border:1px solid var(--border);border-radius:12px;padding:1.25rem;
+            background:var(--sidebar-bg)}
+        .metric-card .label{font-size:.75rem;color:var(--text-muted);font-weight:600;
+            text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem}
+        .metric-card .value{font-size:1.6rem;font-weight:800;letter-spacing:-.03em;color:var(--text-main)}
+        .metric-card .delta{font-size:.8rem;font-weight:600;margin-top:.2rem}
+        .delta-neg{color:var(--green)}
+        .delta-pos{color:var(--red)}
+
+        /* ── TERMINAL ── */
+        .terminal{background:var(--terminal-bg);border-radius:12px;overflow:hidden;
+            margin:1.5rem 0;border:1px solid var(--border)}
+        .terminal-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;
+            border-bottom:1px solid rgba(255,255,255,.07)}
+        .terminal-bar .dot-red{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+        .terminal-bar .dot-yellow{width:12px;height:12px;border-radius:50%;background:#ffbd2e}
+        .terminal-bar .dot-green{width:12px;height:12px;border-radius:50%;background:#28ca41}
+        .terminal-bar .title{font-family:'IBM Plex Mono',monospace;font-size:.75rem;
+            color:#8b949e;margin-left:auto;margin-right:auto}
+        .terminal-body{padding:1.25rem 1.5rem;font-family:'IBM Plex Mono',monospace;
+            font-size:.825rem;line-height:1.75;color:var(--terminal-text);overflow-x:auto}
+        .t-cmd{color:#58a6ff}
+        .t-dim{color:#484f58}
+        .t-green{color:#3fb950}
+        .t-red{color:#f85149}
+        .t-yellow{color:#d29922}
+        .t-cyan{color:#79c0ff}
+        .t-bold{font-weight:600}
+        .t-header{color:#e6edf3;font-weight:600}
+        .t-line{display:block;white-space:pre}
+
+        /* ── CODE ── */
+        .code-wrap{position:relative;margin:1.25rem 0}
+        .code-block{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;
+            padding:1.25rem;font-family:'IBM Plex Mono',monospace;font-size:.825rem;
+            line-height:1.7;overflow-x:auto;color:var(--text-main)}
+        .copy-btn{position:absolute;top:10px;right:10px;background:var(--bg);
+            border:1px solid var(--border);padding:4px 10px;border-radius:6px;
+            cursor:pointer;font-size:.72rem;color:var(--text-muted);font-weight:600;
+            font-family:'Sora',sans-serif;transition:all .15s}
+        .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+        code{font-family:'IBM Plex Mono',monospace;font-size:.85em;
+            background:var(--code-bg);border:1px solid var(--border);
+            padding:1px 5px;border-radius:4px}
+
+        /* ── FEATURE GRID ── */
+        .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:2rem 0}
+        .feature-card{border:1px solid var(--border);padding:1.5rem;border-radius:12px;
+            background:var(--sidebar-bg);transition:border-color .2s}
+        .feature-card:hover{border-color:var(--accent)}
+        .feature-card .icon{font-size:1.5rem;margin-bottom:.75rem}
+        .feature-card h4{margin:0 0 .4rem;font-size:.95rem;font-weight:700;color:var(--text-main)}
+        .feature-card p{margin:0;font-size:.875rem}
+
+        /* ── TABLE ── */
+        .table-wrap{overflow-x:auto;margin:1.5rem 0}
+        table{width:100%;border-collapse:collapse;font-size:.875rem}
+        th{text-align:left;color:var(--text-muted);padding:10px 14px;
+            border-bottom:2px solid var(--border);font-weight:600;font-size:.8rem;
+            text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+        td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+        tr:last-child td{border-bottom:none}
+        td code{background:var(--code-bg);padding:2px 5px;border-radius:4px;
+            border:1px solid var(--border);font-size:.8rem}
+        .price-tag{font-weight:700;color:var(--text-main)}
+        .provider-badge{display:inline-block;padding:2px 8px;border-radius:4px;
+            font-size:.72rem;font-weight:700;letter-spacing:.03em}
+        .pb-openai{background:#10a37f22;color:#10a37f}
+        .pb-anthropic{background:#d4712222;color:#d47122}
+        .pb-google{background:#4285f422;color:#4285f4}
+        .pb-groq{background:#f55f0022;color:#f55f00}
+
+        /* ── HOW IT WORKS ── */
+        .steps{display:grid;gap:0;margin:2rem 0;position:relative}
+        .steps::before{content:'';position:absolute;left:19px;top:40px;bottom:40px;
+            width:2px;background:var(--border);z-index:0}
+        .step{display:flex;gap:1.25rem;padding:1.25rem 0;position:relative;z-index:1}
+        .step-num{width:40px;height:40px;border-radius:50%;background:var(--accent);
+            color:#fff;font-weight:800;font-size:.875rem;display:flex;align-items:center;
+            justify-content:center;flex-shrink:0;border:3px solid var(--bg)}
+        .step-body h4{margin:0 0 .3rem;font-size:.95rem;font-weight:700}
+        .step-body p{margin:0;font-size:.875rem}
+
+        /* ── JSON OUTPUT ── */
+        .json-key{color:#79c0ff}
+        .json-str{color:#a5d6ff}
+        .json-num{color:#3fb950}
+        .json-num.neg{color:#f85149}
+
+        /* ── CALLOUT ── */
+        .callout{border-left:3px solid var(--accent);background:var(--accent-soft);
+            border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.5rem 0;font-size:.9rem}
+        .callout.green{border-color:var(--green);background:var(--green-soft)}
+        .callout strong{color:var(--text-main)}
+
+        /* ── MODEL TAGS ── */
+        .model-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin:.75rem 0}
+        .model-tag{background:var(--code-bg);border:1px solid var(--border);
+            padding:3px 10px;border-radius:6px;font-size:.8rem;font-family:'IBM Plex Mono',monospace;
+            color:var(--text-muted)}
+
+        /* ── RIGHT TOC ── */
+        .right-toc{padding:2.5rem 1rem;position:sticky;top:var(--header-height);height:fit-content}
+        .right-toc .nav-label{font-size:.68rem;font-weight:700;color:var(--text-muted);
+            text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem}
+        .right-toc ul{list-style:none;padding:0;margin:0}
+        .right-toc li a{display:block;padding:.3rem 0;font-size:.8rem;
+            color:var(--text-muted);text-decoration:none;border-left:2px solid transparent;
+            padding-left:.75rem;transition:all .15s}
+        .right-toc li a:hover{color:var(--accent);border-color:var(--accent)}
+
+        /* ── ROADMAP ── */
+        .roadmap-list{list-style:none;padding:0;margin:1rem 0}
+        .roadmap-list li{display:flex;align-items:flex-start;gap:.75rem;
+            padding:.75rem 0;border-bottom:1px solid var(--border);font-size:.9rem}
+        .roadmap-list li:last-child{border:none}
+        .roadmap-list .ri{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);
+            flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center}
+        .roadmap-list .ri.done{background:var(--green);border-color:var(--green);color:#fff;font-size:.7rem}
+        .roadmap-list li .ri-label{font-weight:600;color:var(--text-main);margin-bottom:2px}
+        .roadmap-list li .ri-desc{color:var(--text-muted);font-size:.825rem}
+
+        /* ── FOOTER ── */
+        footer{margin-top:4rem;padding:3rem 0;border-top:1px solid var(--border);text-align:center}
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:1100px){.container{grid-template-columns:var(--sidebar-w) 1fr}.right-toc{display:none}}
+        @media(max-width:800px){.container{display:block}.sidebar{display:none}main{padding:2rem 1.25rem}.feature-grid,.hero-metrics{grid-template-columns:1fr}h1{font-size:2.2rem}}
+    </style>
+</head>
+<body>
+
+<header class="global-nav">
+    <a href="#" class="logo-wrap">
+        <div class="logo-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="8" fill="var(--text-main)"/>
+                <circle cx="11" cy="11" r="3" fill="var(--bg)"/>
+                <circle cx="21" cy="21" r="3" fill="var(--accent)"/>
+                <path d="M13 13L19 19" stroke="var(--bg)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 23L23 9" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 2"/>
+            </svg>
+        </div>
+        llm-diff
+    </a>
+    <div class="header-right">
+        <a href="https://npmjs.com/package/llm-diff" class="header-badge" target="_blank">v0.4.2</a>
+        <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a href="https://github.com/llmhut/llm-diff" class="icon-btn" target="_blank" title="GitHub">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+    </div>
+</header>
+
+<div class="container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="nav-section">
+            <div class="nav-label">Introduction</div>
+            <ul>
+                <li><a href="#about"><span class="dot"></span>Overview</a></li>
+                <li><a href="#why"><span class="dot"></span>Why llm-diff?</a></li>
+                <li><a href="#install"><span class="dot"></span>Installation</a></li>
+                <li><a href="#quick-start"><span class="dot"></span>Quick Start</a></li>
+            </ul>
+        </div>
+        <div class="nav-section">
+            <div class="nav-label">CLI Reference</div>
+            <ul>
+                <li><a href="#usage"><span class="dot"></span>Commands</a></li>
+                <li><a href="#options"><span class="dot"></span>Full Options</a></li>
+                <li><a href="#models"><span class="dot"></span>Models & Pricing</a></li>
+                <li><a href="#json-output"><span class="dot"></span>JSON Output</a></li>
+            </ul>
+        </div>
+        <div class="nav-section">
+            <div class="nav-label">Advanced</div>
+            <ul>
+                <li><a href="#how-it-works"><span class="dot"></span>How It Works</a></li>
+                <li><a href="#gateway"><span class="dot"></span>Gateway Support</a></li>
+                <li><a href="#averaging"><span class="dot"></span>Averaging Runs</a></li>
+                <li><a href="#api"><span class="dot"></span>Programmatic API</a></li>
+                <li><a href="#roadmap"><span class="dot"></span>Roadmap</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+
+        <!-- OVERVIEW -->
+        <section id="about">
+            <div class="badges">
+                <span class="badge badge-blue">Built by LLM Hut</span>
+                <span class="badge badge-green">Apache-2.0</span>
+                <span class="badge badge-gray">Node.js ≥ 18</span>
+                <span class="badge badge-gray">npm · npx</span>
+            </div>
+            <h1>The prompt diff<br>tool for engineers.</h1>
+            <p style="font-size:1.15rem;max-width:580px;margin-bottom:2rem">
+                Stop guessing whether your prompt changes actually helped. <strong>llm-diff</strong> gives you a precise, technical breakdown — token deltas, cost savings, latency shifts, and a word-level response diff — all in one command.
+            </p>
+
+            <!-- Live terminal demo -->
+            <div class="terminal">
+                <div class="terminal-bar">
+                    <div class="dot-red"></div><div class="dot-yellow"></div><div class="dot-green"></div>
+                    <div class="title">bash — llm-diff</div>
+                </div>
+                <div class="terminal-body">
+<span class="t-line"><span class="t-cmd">$</span> llm-diff --a prompt-v1.txt --b prompt-v2.txt --model gpt-4o</span>
+<span class="t-line"> </span>
+<span class="t-line"><span class="t-header">  llm-diff</span>  <span class="t-cyan">openai/gpt-4o</span></span>
+<span class="t-line"> </span>
+<span class="t-line">  <span class="t-dim">tokens</span>       <span class="t-bold">312</span> → <span class="t-bold">289</span>    <span class="t-green">-23  (-7.4%)</span></span>
+<span class="t-line">    <span class="t-dim">input</span>        <span class="t-bold"> 45</span> → <span class="t-bold"> 38</span>     <span class="t-green">-7</span></span>
+<span class="t-line">    <span class="t-dim">output</span>       <span class="t-bold">267</span> → <span class="t-bold">251</span>    <span class="t-green">-16</span></span>
+<span class="t-line">  <span class="t-dim">cost</span>     <span class="t-bold">$0.0041</span> → <span class="t-bold">$0.0038</span>   <span class="t-green">-$0.0003  (-7.3%)</span></span>
+<span class="t-line">  <span class="t-dim">latency</span>   <span class="t-bold">1247ms</span> → <span class="t-bold">  943ms</span>   <span class="t-green">-304ms  (-24.4%)</span></span>
+<span class="t-line"> </span>
+<span class="t-line"><span class="t-dim">--- prompt-v1.txt</span></span>
+<span class="t-line"><span class="t-dim">+++ prompt-v2.txt</span></span>
+<span class="t-line">  The capital of France is Paris.</span>
+<span class="t-line"><span class="t-red">- It is located in northern France and has a population of approximately</span></span>
+<span class="t-line"><span class="t-red">-   2.1 million people in the city proper…</span></span>
+<span class="t-line"><span class="t-green">+ Paris, with ~2.1M residents, serves as the political and cultural</span></span>
+<span class="t-line"><span class="t-green">+   center of the country…</span></span>
+                </div>
+            </div>
+
+            <!-- Metric Cards -->
+            <div class="hero-metrics">
+                <div class="metric-card">
+                    <div class="label">Tokens saved</div>
+                    <div class="value">−23</div>
+                    <div class="delta delta-neg">▼ 7.4% fewer tokens</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Cost delta</div>
+                    <div class="value">−$0.0003</div>
+                    <div class="delta delta-neg">▼ 7.3% cheaper per call</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Latency saved</div>
+                    <div class="value">−304ms</div>
+                    <div class="delta delta-neg">▼ 24.4% faster response</div>
+                </div>
+            </div>
+
+            <!-- Feature grid -->
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">📊</div>
+                    <h4>Token Delta</h4>
+                    <p>See exactly how many input and output tokens were saved or added between prompt versions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">💸</div>
+                    <h4>Cost Tracking</h4>
+                    <p>Real-time cost calculation based on the latest published pricing for every supported model.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">⚡</div>
+                    <h4>Latency Profiling</h4>
+                    <p>Measure time-to-first-token and total latency shifts. Spot regressions before they reach prod.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🔍</div>
+                    <h4>Word-Level Diff</h4>
+                    <p>Colored inline diff of actual model responses — not just stats, but what actually changed.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🔁</div>
+                    <h4>Multi-Run Averaging</h4>
+                    <p>LLM outputs are stochastic. Average over N runs to get statistically reliable comparisons.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🛠️</div>
+                    <h4>Programmatic API</h4>
+                    <p>Import <code>runDiff()</code> directly into your eval suite, CI pipeline, or observability stack.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHY -->
+        <section id="why">
+            <h2>Why llm-diff?</h2>
+            <p>Prompt engineering is still largely vibes-driven. You tweak wording, run it manually, eyeball the output, and guess whether it's better. <strong>llm-diff</strong> adds rigor to this loop.</p>
+            <div class="callout">
+                <strong>The core insight:</strong> a prompt that saves 20 tokens per call costs <strong>$200 less per million calls</strong> on GPT-4o. At scale, prompt quality is a cost-control lever — and you can't optimize what you can't measure.
+            </div>
+            <p>Unlike playground UIs or LangSmith traces, <code>llm-diff</code> is designed to live in your terminal and CI pipeline. It speaks the language of engineers: flags, pipes, JSON, exit codes.</p>
+        </section>
+
+        <!-- INSTALL -->
+        <section id="install">
+            <h2>Installation</h2>
+            <h3>Run instantly with npx (no install)</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">npx llm-diff --a prompt-v1.txt --b prompt-v2.txt --model gpt-4o</div>
+            </div>
+            <h3>Install globally</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">npm install -g llm-diff</div>
+            </div>
+            <h3>Add to a project</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">npm install --save-dev llm-diff</div>
+            </div>
+            <p><strong>Requirements:</strong> Node.js ≥ 18. No external dependencies beyond the provider SDKs.</p>
+        </section>
+
+        <!-- QUICK START -->
+        <section id="quick-start">
+            <h2>Quick Start</h2>
+
+            <h3>1. Set your API key</h3>
+            <p>Export the key for your chosen provider:</p>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">export OPENAI_API_KEY=sk-...
+# or
+export ANTHROPIC_API_KEY=sk-ant-...
+# or
+export GEMINI_API_KEY=AIza...
+# or
+export GROQ_API_KEY=gsk_...</div>
+            </div>
+
+            <h3>2. Compare two prompt files</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">llm-diff --a prompt-v1.txt --b prompt-v2.txt --model gpt-4o</div>
+            </div>
+
+            <h3>3. Or compare inline text</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">llm-diff -a "Explain gravity" -b "Explain gravity to a child" -m gpt-4o-mini</div>
+            </div>
+
+            <h3>4. Add a system prompt</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">llm-diff -a v1.txt -b v2.txt -m claude-sonnet-4-20250514 -s "You are a concise science teacher"</div>
+            </div>
+
+            <h3>5. Average multiple runs for reliability</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">llm-diff -a v1.txt -b v2.txt -m gpt-4o --runs 5</div>
+            </div>
+            <div class="callout green">
+                <strong>Tip:</strong> Use <code>--runs 5</code> or higher any time you're comparing prompts with non-zero temperature. Single-run comparisons can be misleading due to stochastic variation.
+            </div>
+        </section>
+
+        <!-- USAGE -->
+        <section id="usage">
+            <h2>Commands</h2>
+            <div class="code-wrap">
+                <div class="code-block">llm-diff --a &lt;prompt-a&gt; --b &lt;prompt-b&gt; --model &lt;model&gt; [options]</div>
+            </div>
+
+            <h3>Required flags</h3>
+            <div class="table-wrap"><table>
+                <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>--a, -a</code></td><td>Prompt A — file path or inline text string</td></tr>
+                    <tr><td><code>--b, -b</code></td><td>Prompt B — file path or inline text string</td></tr>
+                    <tr><td><code>--model, -m</code></td><td>Model name. Run <code>llm-diff --models</code> for the full list.</td></tr>
+                </tbody>
+            </table></div>
+
+            <h3>Useful one-liners</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block"># Get JSON output and pipe to jq
+llm-diff -a v1.txt -b v2.txt -m gpt-4o --json | jq '.delta'
+
+# Show full response diff with word-level highlighting
+llm-diff -a v1.txt -b v2.txt -m gpt-4o --full
+
+# Run sequentially (not in parallel) for rate-limited accounts
+llm-diff -a v1.txt -b v2.txt -m gpt-4o --no-parallel
+
+# Print all supported models with pricing
+llm-diff --models</div>
+            </div>
+        </section>
+
+        <!-- OPTIONS -->
+        <section id="options">
+            <h2>Full Options</h2>
+            <div class="table-wrap"><table>
+                <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>--a, -a</code></td><td>—</td><td>Path to file or inline text for Prompt A.</td></tr>
+                    <tr><td><code>--b, -b</code></td><td>—</td><td>Path to file or inline text for Prompt B.</td></tr>
+                    <tr><td><code>--model, -m</code></td><td>—</td><td>Model name (e.g. <code>gpt-4o</code>, <code>claude-sonnet-4-20250514</code>).</td></tr>
+                    <tr><td><code>--system, -s</code></td><td>—</td><td>System prompt — file path or inline text.</td></tr>
+                    <tr><td><code>--temperature</code></td><td><code>0</code></td><td>Sampling temperature (0–2). Use 0 for deterministic runs.</td></tr>
+                    <tr><td><code>--max-tokens</code></td><td><code>2048</code></td><td>Maximum output token budget per call.</td></tr>
+                    <tr><td><code>--runs</code></td><td><code>1</code></td><td>Average results over N runs. Recommended ≥ 3 at temp > 0.</td></tr>
+                    <tr><td><code>--no-parallel</code></td><td>—</td><td>Run A and B sequentially instead of in parallel.</td></tr>
+                    <tr><td><code>--full</code></td><td>—</td><td>Show full word-level inline diff of the response text.</td></tr>
+                    <tr><td><code>--json</code></td><td><code>false</code></td><td>Output results as machine-readable JSON.</td></tr>
+                    <tr><td><code>--base-url</code></td><td>—</td><td>Gateway URL override (e.g. <code>https://gw.llmhut.com/v1</code>).</td></tr>
+                    <tr><td><code>--timeout</code></td><td><code>60000</code></td><td>Request timeout in milliseconds.</td></tr>
+                    <tr><td><code>--models</code></td><td>—</td><td>Print all supported models and their current pricing, then exit.</td></tr>
+                </tbody>
+            </table></div>
+        </section>
+
+        <!-- MODELS -->
+        <section id="models">
+            <h2>Models & Pricing</h2>
+            <p>llm-diff bundles up-to-date pricing for all major providers. Run <code>llm-diff --models</code> for the live list. Pricing below is indicative — always verify with your provider dashboard.</p>
+
+            <div class="table-wrap"><table>
+                <thead><tr><th>Model</th><th>Provider</th><th>Input / 1M tk</th><th>Output / 1M tk</th><th>Notes</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>gpt-4o</code></td>
+                        <td><span class="provider-badge pb-openai">OpenAI</span></td>
+                        <td class="price-tag">$2.50</td><td class="price-tag">$10.00</td>
+                        <td>Flagship multimodal model</td>
+                    </tr>
+                    <tr>
+                        <td><code>gpt-4o-mini</code></td>
+                        <td><span class="provider-badge pb-openai">OpenAI</span></td>
+                        <td class="price-tag">$0.15</td><td class="price-tag">$0.60</td>
+                        <td>Best cost/quality for most tasks</td>
+                    </tr>
+                    <tr>
+                        <td><code>gpt-4-turbo</code></td>
+                        <td><span class="provider-badge pb-openai">OpenAI</span></td>
+                        <td class="price-tag">$10.00</td><td class="price-tag">$30.00</td>
+                        <td>128K context window</td>
+                    </tr>
+                    <tr>
+                        <td><code>o1</code></td>
+                        <td><span class="provider-badge pb-openai">OpenAI</span></td>
+                        <td class="price-tag">$15.00</td><td class="price-tag">$60.00</td>
+                        <td>Extended reasoning; slow</td>
+                    </tr>
+                    <tr>
+                        <td><code>o3-mini</code></td>
+                        <td><span class="provider-badge pb-openai">OpenAI</span></td>
+                        <td class="price-tag">$1.10</td><td class="price-tag">$4.40</td>
+                        <td>Reasoning at lower cost</td>
+                    </tr>
+                    <tr>
+                        <td><code>claude-sonnet-4-20250514</code></td>
+                        <td><span class="provider-badge pb-anthropic">Anthropic</span></td>
+                        <td class="price-tag">$3.00</td><td class="price-tag">$15.00</td>
+                        <td>Current Sonnet; strong reasoning</td>
+                    </tr>
+                    <tr>
+                        <td><code>claude-3.5-haiku</code></td>
+                        <td><span class="provider-badge pb-anthropic">Anthropic</span></td>
+                        <td class="price-tag">$0.80</td><td class="price-tag">$4.00</td>
+                        <td>Fast, cheap Anthropic option</td>
+                    </tr>
+                    <tr>
+                        <td><code>claude-3-opus</code></td>
+                        <td><span class="provider-badge pb-anthropic">Anthropic</span></td>
+                        <td class="price-tag">$15.00</td><td class="price-tag">$75.00</td>
+                        <td>Most capable Claude model</td>
+                    </tr>
+                    <tr>
+                        <td><code>gemini-2.0-flash</code></td>
+                        <td><span class="provider-badge pb-google">Google</span></td>
+                        <td class="price-tag">$0.10</td><td class="price-tag">$0.40</td>
+                        <td>Fastest Gemini; great for evals</td>
+                    </tr>
+                    <tr>
+                        <td><code>gemini-1.5-pro</code></td>
+                        <td><span class="provider-badge pb-google">Google</span></td>
+                        <td class="price-tag">$1.25</td><td class="price-tag">$5.00</td>
+                        <td>2M token context window</td>
+                    </tr>
+                    <tr>
+                        <td><code>llama-3.3-70b</code></td>
+                        <td><span class="provider-badge pb-groq">Groq</span></td>
+                        <td class="price-tag">$0.59</td><td class="price-tag">$0.79</td>
+                        <td>Extremely fast inference via Groq</td>
+                    </tr>
+                    <tr>
+                        <td><code>mixtral-8x7b</code></td>
+                        <td><span class="provider-badge pb-groq">Groq</span></td>
+                        <td class="price-tag">$0.24</td><td class="price-tag">$0.24</td>
+                        <td>MoE; efficient for classification</td>
+                    </tr>
+                </tbody>
+            </table></div>
+        </section>
+
+        <!-- JSON OUTPUT -->
+        <section id="json-output">
+            <h2>JSON Output</h2>
+            <p>Pipe results into your own scripts, dashboards, or eval pipelines with <code>--json</code>:</p>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">llm-diff -a v1.txt -b v2.txt -m gpt-4o --json | jq '.delta'</div>
+            </div>
+            <p>The full JSON schema:</p>
+            <div class="terminal">
+                <div class="terminal-bar">
+                    <div class="dot-red"></div><div class="dot-yellow"></div><div class="dot-green"></div>
+                    <div class="title">JSON output schema</div>
+                </div>
+                <div class="terminal-body">
+<span class="t-line">{</span>
+<span class="t-line">  <span class="json-key">"model"</span>: <span class="json-str">"gpt-4o"</span>,</span>
+<span class="t-line">  <span class="json-key">"provider"</span>: <span class="json-str">"openai"</span>,</span>
+<span class="t-line">  <span class="json-key">"promptA"</span>: {</span>
+<span class="t-line">    <span class="json-key">"tokens"</span>: { <span class="json-key">"input"</span>: <span class="json-num">45</span>, <span class="json-key">"output"</span>: <span class="json-num">267</span>, <span class="json-key">"total"</span>: <span class="json-num">312</span> },</span>
+<span class="t-line">    <span class="json-key">"cost"</span>: <span class="json-num">0.004125</span>,</span>
+<span class="t-line">    <span class="json-key">"latencyMs"</span>: <span class="json-num">1247</span></span>
+<span class="t-line">  },</span>
+<span class="t-line">  <span class="json-key">"promptB"</span>: {</span>
+<span class="t-line">    <span class="json-key">"tokens"</span>: { <span class="json-key">"input"</span>: <span class="json-num">38</span>, <span class="json-key">"output"</span>: <span class="json-num">251</span>, <span class="json-key">"total"</span>: <span class="json-num">289</span> },</span>
+<span class="t-line">    <span class="json-key">"cost"</span>: <span class="json-num">0.003832</span>,</span>
+<span class="t-line">    <span class="json-key">"latencyMs"</span>: <span class="json-num">943</span></span>
+<span class="t-line">  },</span>
+<span class="t-line">  <span class="json-key">"delta"</span>: {</span>
+<span class="t-line">    <span class="json-key">"totalTokens"</span>: <span class="json-num neg">-23</span>,</span>
+<span class="t-line">    <span class="json-key">"totalTokensPct"</span>: <span class="json-num neg">-7.4</span>,</span>
+<span class="t-line">    <span class="json-key">"inputTokens"</span>: <span class="json-num neg">-7</span>,</span>
+<span class="t-line">    <span class="json-key">"outputTokens"</span>: <span class="json-num neg">-16</span>,</span>
+<span class="t-line">    <span class="json-key">"cost"</span>: <span class="json-num neg">-0.000293</span>,</span>
+<span class="t-line">    <span class="json-key">"costPct"</span>: <span class="json-num neg">-7.1</span>,</span>
+<span class="t-line">    <span class="json-key">"latencyMs"</span>: <span class="json-num neg">-304</span>,</span>
+<span class="t-line">    <span class="json-key">"latencyPct"</span>: <span class="json-num neg">-24.4</span></span>
+<span class="t-line">  },</span>
+<span class="t-line">  <span class="json-key">"runs"</span>: <span class="json-num">1</span>,</span>
+<span class="t-line">  <span class="json-key">"diff"</span>: <span class="json-str">"--- prompt-v1.txt\n+++ prompt-v2.txt\n  The capital…"</span></span>
+<span class="t-line">}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section id="how-it-works">
+            <h2>How It Works</h2>
+            <p>Under the hood, llm-diff coordinates a small pipeline for every comparison:</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <h4>Resolve model → provider</h4>
+                        <p>The model name is matched against the built-in registry to determine the provider, API base URL, and per-token pricing rates.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <h4>Read prompts A and B</h4>
+                        <p>Each argument is treated as a file path first; if the file doesn't exist, the value is used as inline text. System prompts follow the same logic.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <h4>Fire both requests (in parallel by default)</h4>
+                        <p>Requests are sent concurrently using <code>Promise.all()</code> to minimize wall-clock time. Use <code>--no-parallel</code> for rate-limited accounts.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-body">
+                        <h4>Collect usage metadata</h4>
+                        <p>Token counts and latency are read directly from the API response object — no client-side estimation. Cost is computed from the live pricing registry.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">5</div>
+                    <div class="step-body">
+                        <h4>Compute deltas</h4>
+                        <p>Absolute and percentage deltas are calculated for tokens, cost, and latency. With <code>--runs N</code>, all values are averaged across runs.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">6</div>
+                    <div class="step-body">
+                        <h4>Generate word-level diff</h4>
+                        <p>Response texts are diffed at word granularity using a Myers-style algorithm. Added words are green, removed words are red.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">7</div>
+                    <div class="step-body">
+                        <h4>Render to terminal or JSON</h4>
+                        <p>Output is formatted using ANSI color codes for terminal display, or serialized to structured JSON with <code>--json</code>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GATEWAY -->
+        <section id="gateway">
+            <h2>Gateway Support</h2>
+            <p>Route requests through any OpenAI-compatible gateway — LLM Hut, LiteLLM, Azure OpenAI, or your own proxy — using <code>--base-url</code>:</p>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">llm-diff -a v1.txt -b v2.txt -m gpt-4o \
+  --base-url https://gw.llmhut.com/v1</div>
+            </div>
+            <div class="callout">
+                <strong>Gateway auth:</strong> When using a gateway, the gateway handles authentication on your behalf. You don't need provider-specific API keys — just your gateway credentials.
+            </div>
+            <h3>Azure OpenAI example</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">export OPENAI_API_KEY=your-azure-key
+llm-diff -a v1.txt -b v2.txt -m gpt-4o \
+  --base-url https://my-resource.openai.azure.com/openai/deployments/my-gpt4o</div>
+            </div>
+            <h3>LiteLLM Proxy</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">llm-diff -a v1.txt -b v2.txt -m claude-sonnet-4-20250514 \
+  --base-url http://localhost:8000</div>
+            </div>
+        </section>
+
+        <!-- AVERAGING -->
+        <section id="averaging">
+            <h2>Averaging Multiple Runs</h2>
+            <p>LLM responses are stochastic — the same prompt can return different token counts, different response lengths, and different latencies on each call. A single-run comparison can easily mislead.</p>
+            <p>Use <code>--runs N</code> to fire each prompt N times and average all metrics:</p>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">llm-diff -a v1.txt -b v2.txt -m gpt-4o --runs 5 --temperature 0.7</div>
+            </div>
+            <p><strong>What gets averaged:</strong> token counts, cost, and latency. The response text shown in the diff is taken from the final run.</p>
+            <div class="callout green">
+                <strong>Recommended practice:</strong> at <code>temperature=0</code>, 1–3 runs is sufficient. At <code>temperature > 0</code>, use at least 5 runs. For critical prompt decisions, consider 10+ runs and pipe results to a JSON aggregator.
+            </div>
+
+            <h3>Piping averaged results</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">llm-diff -a v1.txt -b v2.txt -m gpt-4o --runs 10 --json \
+  | jq '{avgCostDelta: .delta.cost, avgLatencyDelta: .delta.latencyMs}'</div>
+            </div>
+        </section>
+
+        <!-- API -->
+        <section id="api">
+            <h2>Programmatic API</h2>
+            <p>Import <code>runDiff()</code> directly to integrate llm-diff into eval suites, CI checks, or observability pipelines.</p>
+
+            <h3>Basic usage</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">import { runDiff } from 'llm-diff';
+
+const result = await runDiff({
+  promptA: 'Summarize the history of Rome',
+  promptB: 'Summarize the history of Rome in 2 sentences',
+  model: 'gpt-4o-mini',
+});
+
+console.log(result.delta.cost);      // -0.0004
+console.log(result.delta.latencyMs); // -210
+console.log(result.diff);            // word-level diff string</div>
+            </div>
+
+            <h3>Full options</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">const result = await runDiff({
+  promptA: 'path/to/v1.txt',   // or inline string
+  promptB: 'path/to/v2.txt',
+  model: 'claude-sonnet-4-20250514',
+  system: 'You are a helpful assistant',
+  temperature: 0,
+  maxTokens: 1024,
+  runs: 5,
+  parallel: true,
+  baseUrl: 'https://gw.llmhut.com/v1',
+});</div>
+            </div>
+
+            <h3>CI integration example (Node.js)</h3>
+            <div class="code-wrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-block">import { runDiff } from 'llm-diff';
+
+const result = await runDiff({
+  promptA: 'prompts/system-v1.txt',
+  promptB: 'prompts/system-v2.txt',
+  model: 'gpt-4o-mini',
+  runs: 3,
+});
+
+// Fail the CI step if prompt B costs more than A
+if (result.delta.cost > 0) {
+  console.error(`Prompt B is more expensive by $${result.delta.cost.toFixed(5)}`);
+  process.exit(1);
+}
+
+console.log(`✓ Prompt B saves ${Math.abs(result.delta.costPct).toFixed(1)}% per call`);
+process.exit(0);</div>
+            </div>
+        </section>
+
+        <!-- ROADMAP -->
+        <section id="roadmap">
+            <h2>Roadmap</h2>
+            <p>What's shipping next, and what's on the horizon. Contributions welcome — see <code>CONTRIBUTING.md</code>.</p>
+            <ul class="roadmap-list">
+                <li>
+                    <div class="ri done">✓</div>
+                    <div>
+                        <div class="ri-label">Multi-provider support</div>
+                        <div class="ri-desc">OpenAI, Anthropic, Google Gemini, Groq all supported with live pricing.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ri done">✓</div>
+                    <div>
+                        <div class="ri-label">JSON output mode</div>
+                        <div class="ri-desc">Full structured JSON for scripting and pipeline integration.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ri done">✓</div>
+                    <div>
+                        <div class="ri-label">Multi-run averaging</div>
+                        <div class="ri-desc">Average token counts, cost, and latency across N runs.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ri"></div>
+                    <div>
+                        <div class="ri-label">Side-by-side terminal diff view</div>
+                        <div class="ri-desc">Split-pane terminal layout showing both responses side by side.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ri"></div>
+                    <div>
+                        <div class="ri-label">Cross-model comparison</div>
+                        <div class="ri-desc"><code>--model-a gpt-4o --model-b claude-sonnet-4-20250514</code> — same prompt, different models.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ri"></div>
+                    <div>
+                        <div class="ri-label">HTML & PDF report export</div>
+                        <div class="ri-desc">Shareable visual reports with diff, metrics, and run history.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ri"></div>
+                    <div>
+                        <div class="ri-label">Config file support</div>
+                        <div class="ri-desc">Persist defaults to <code>.llm-diff.json</code> so you don't repeat flags every run.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ri"></div>
+                    <div>
+                        <div class="ri-label">Streaming with live token counting</div>
+                        <div class="ri-desc">Watch token counts update in real time as the model streams its response.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ri"></div>
+                    <div>
+                        <div class="ri-label">Mistral, Cohere, Together AI</div>
+                        <div class="ri-desc">Expanding provider coverage to additional popular inference APIs.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ri"></div>
+                    <div>
+                        <div class="ri-label">Named experiments & history</div>
+                        <div class="ri-desc">Track prompt iterations over time with a local SQLite store. Tag, query, and chart history.</div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <p style="color:var(--text-muted);font-size:.9rem">
+                Released under the <strong style="color:var(--text-main)">Apache-2.0 License</strong>. Built by the <a href="https://llmhut.com" style="color:var(--accent);text-decoration:none;font-weight:600">LLM Hut Community</a>.
+            </p>
+            <p style="color:var(--text-muted);font-size:.825rem;margin-top:.5rem">
+                Found a bug? <a href="https://github.com/llmhut/llm-diff/issues" style="color:var(--accent);text-decoration:none">Open an issue</a> · <a href="https://github.com/llmhut/llm-diff/blob/main/CONTRIBUTING.md" style="color:var(--accent);text-decoration:none">Contributing guide</a>
+            </p>
+        </footer>
+    </main>
+
+    <!-- RIGHT TOC -->
+    <aside class="right-toc">
+        <div class="nav-label">On This Page</div>
+        <ul>
+            <li><a href="#about">Overview</a></li>
+            <li><a href="#why">Why llm-diff?</a></li>
+            <li><a href="#install">Installation</a></li>
+            <li><a href="#quick-start">Quick Start</a></li>
+            <li><a href="#usage">Commands</a></li>
+            <li><a href="#options">Options</a></li>
+            <li><a href="#models">Models & Pricing</a></li>
+            <li><a href="#json-output">JSON Output</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#gateway">Gateway Support</a></li>
+            <li><a href="#averaging">Averaging Runs</a></li>
+            <li><a href="#api">Programmatic API</a></li>
+            <li><a href="#roadmap">Roadmap</a></li>
+        </ul>
+    </aside>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const current = html.getAttribute('data-theme');
+        html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
+    function copyCode(btn) {
+        const code = btn.nextElementSibling.innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            btn.innerText = 'Copied!';
+            setTimeout(() => btn.innerText = 'Copy', 2000);
+        });
+    }
+
+    // Highlight active sidebar link on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const sidebarLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                sidebarLinks.forEach(a => a.classList.remove('active'));
+                const active = document.querySelector(`.sidebar a[href="#${entry.target.id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
